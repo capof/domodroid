@@ -20,7 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_FEATURE_ASSOCIATION = "CREATE TABLE table_feature_association (place_id INTEGER, place_type TEXT, device_feature_id INTEGER, id INTEGER, device_feature TEXT );";
 	private static final String CREATE_TABLE_FEATURE_STATE = "CREATE TABLE table_feature_state (device_id INTEGER, key TEXT, value TEXT);";
 	private static final String CREATE_TABLE_FEATURE_MAP = "CREATE TABLE table_feature_map (id, posx INTEGER, posy INTEGER, map TEXT);";
-	private static final String CREATE_TABLE_FEATURE_CUSTOM = "CREATE TABLE table_feature_custom (id,customname TEXT, widget TEXT, visible BOOLEAN);";
+	private static final String CREATE_TABLE_FEATURE_CUSTOM = "CREATE TABLE table_feature_custom (id,device_id INTEGER,state_key TEXT,customname TEXT, widget TEXT, visible BOOLEAN);";
 
 	private static final String DATABASE_NAME = Environment.getExternalStorageDirectory()+"/domodroid/.conf/domodroid.db";
 	private static final int DATABASE_VERSION = 3;
