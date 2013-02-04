@@ -107,17 +107,6 @@ public class DomodroidDB {
 		}
 	}
 
-	//Send custom name to DmdContentProvder so that it could be write in DB
-	public void updateFeatureCustomname(int id,String customname){
-		ContentValues values = new ContentValues();
-		values.put("id", id);
-		values.put("customname", customname);
-		Log.e("DomodrdoidDB", "Customname set to: "+customname+" for device: "+id);
-		context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_UPDATE_FEATURE_CUSTOM_NAME, values);
-	}
-	
-
-
 	public void insertFeatureAssociation(JSONObject json) throws JSONException{
 		ContentValues values = new ContentValues();
 		JSONArray itemArray = json.getJSONArray("feature_association");
@@ -381,5 +370,14 @@ public class DomodroidDB {
 		
 
 		return state;
+	}
+	
+	//Send custom name to DmdContentProvder so that it could be write in DB
+	public void updateFeatureCustomname(int id,String customname){
+		ContentValues values = new ContentValues();
+		values.put("id", id);
+		values.put("customname", customname);
+		Log.e("DomodrdoidDB", "Customname set to: "+customname+" for device: "+id);
+		context.getContentResolver().update(DmdContentProvider.CONTENT_URI_UPDATE_FEATURE_CUSTOM_NAME, values, customname, null);
 	}
 }

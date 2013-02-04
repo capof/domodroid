@@ -16,13 +16,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_ROOM = "CREATE TABLE table_room (area_id INTEGER, description TEXT, id INTEGER, name TEXT);";
 	private static final String CREATE_TABLE_ICON = "CREATE TABLE table_icon (name TEXT, value TEXT, reference INTEGER);";
 
-	private static final String CREATE_TABLE_FEATURE = "CREATE TABLE table_feature (device_feature_model_id TEXT, id INTEGER, device_id INTEGER, device_usage_id TEXT, address TEXT, device_type_id TEXT, description TEXT, name TEXT,customname TEXT, state_key TEXT, parameters TEXT, value_type TEXT);";
+	private static final String CREATE_TABLE_FEATURE = "CREATE TABLE table_feature (device_feature_model_id TEXT, id INTEGER, device_id INTEGER, device_usage_id TEXT, address TEXT, device_type_id TEXT, description TEXT, name TEXT, state_key TEXT, parameters TEXT, value_type TEXT);";
 	private static final String CREATE_TABLE_FEATURE_ASSOCIATION = "CREATE TABLE table_feature_association (place_id INTEGER, place_type TEXT, device_feature_id INTEGER, id INTEGER, device_feature TEXT );";
 	private static final String CREATE_TABLE_FEATURE_STATE = "CREATE TABLE table_feature_state (device_id INTEGER, key TEXT, value TEXT);";
 	private static final String CREATE_TABLE_FEATURE_MAP = "CREATE TABLE table_feature_map (id, posx INTEGER, posy INTEGER, map TEXT);";
+	private static final String CREATE_TABLE_FEATURE_CUSTOM = "CREATE TABLE table_feature_custom (id,customname TEXT, widget TEXT, visible BOOLEAN);";
 
 	private static final String DATABASE_NAME = Environment.getExternalStorageDirectory()+"/domodroid/.conf/domodroid.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,6 +42,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_TABLE_FEATURE_MAP);
 		db.execSQL(CREATE_TABLE_FEATURE_ASSOCIATION);
 		db.execSQL(CREATE_TABLE_FEATURE_STATE);
+		db.execSQL(CREATE_TABLE_FEATURE_CUSTOM);
 	}
 
 
@@ -62,6 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS table_feature_association");
 		db.execSQL("DROP TABLE IF EXISTS table_feature_state");
 		db.execSQL("DROP TABLE IF EXISTS table_feature_map");
+		db.execSQL("DROP TABLE IF EXISTS table_feature_custom");
         onCreate(db);
 	}
 
