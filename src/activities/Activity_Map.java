@@ -27,7 +27,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import misc.Tracer;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,6 +58,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 	private Button add;
 	private Button help;
 	private Button remove;
+	private Button move;
 	private Button remove_all;
 	private Dialog dialog_feature;
 
@@ -146,7 +147,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 		listeMap.setAdapter(adapter_map);
 		listeMap.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Log.d("Activity_Map.onclick","Map selected at Position = "+position);
+				Tracer.d("Activity_Map.onclick","Map selected at Position = "+position);
 				if((position < listItem.size()) && (position > -1) ) {
 					mapView.setCurrentFile(position);
 					mapView.initMap();
@@ -215,9 +216,21 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 		remove_all.setBackgroundColor(Color.parseColor("#00000000"));
 		remove_all.setOnClickListener(this);
 		
+		move = new Button(this);
+		move.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.FILL_PARENT,1));
+		move.setPadding(10, 13, 10, 13);
+		move.setText(R.string.map_button2c);
+		move.setTextColor(Color.parseColor("#cfD1D1"));
+		move.setTextSize(15);
+		move.setTag("move");
+		move.setBackgroundColor(Color.parseColor("#00000000"));
+		move.setOnClickListener(this);
+		
+		
 		panel_button.addView(add);
 		panel_button.addView(help);
 		panel_button.addView(remove);
+		panel_button.addView(move);
 		panel_button.addView(remove_all);
 
 
@@ -228,7 +241,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Select a Widget");
+		builder.setTitle(R.string.Add_widget_title);
 
 		//get feature list
 		domodb = new DomodroidDB(this);
@@ -300,7 +313,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 
 	}
 	private void startDBEngine() {
-		Log.e("Activity_Map", "Starting/restarting WidgetUpdate engine !");
+		Tracer.e("Activity_Map", "Starting/restarting WidgetUpdate engine !");
 		if(widgetUpdate != null) {
 			widgetUpdate.cancelEngine();
 			widgetUpdate = null;
@@ -313,7 +326,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 	public void onPause(){
 		super.onPause();
 		panel.setOpen(false, false);
-		Log.e("Activity_Map", "onPause");
+		Tracer.e("Activity_Map", "onPause");
 		if(mapView != null)
 			mapView.stopThread();
 		mapView=null;
@@ -335,14 +348,14 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.e("ActivityMap.onDestroy","??????????????????????");
+		Tracer.e("ActivityMap.onDestroy","??????????????????????");
 		if(widgetUpdate != null) {
 			widgetUpdate.cancelEngine();
 			widgetUpdate = null;
 		}
 	}
 	public void onPanelClosed(Sliding_Drawer panel) {
-		Log.e("ActivityMap.onPanelClosed","??????????????????????");
+		Tracer.e("ActivityMap.onPanelClosed","??????????????????????");
 		menu_green.startAnimation(animation2);
 		menu_green.setVisibility(View.GONE);
 		panel_widget.removeAllViews();
@@ -351,7 +364,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 
 
 	public void onPanelOpened(Sliding_Drawer panel) {
-		Log.e("ActivityMap.onPanelOpened","??????????????????????");
+		Tracer.e("ActivityMap.onPanelOpened","??????????????????????");
 		menu_green.setVisibility(View.VISIBLE);
 		menu_green.startAnimation(animation1);
 	}
@@ -373,7 +386,6 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 				topPanel.setOpen(false, true);
 			}			
 
-
 		}else if(v.getTag().equals("add")){
 			//Add a widget
 			panel.setOpen(false, true);
@@ -385,6 +397,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 				remove.setTextColor(Color.parseColor("#cfD1D1"));
 				mapView.setRemoveMode(false);
 			}
+			
 		}else if(v.getTag().equals("remove")){
 			//case when user want to remove only one widget
 			if(list_usable_files.isEmpty()){
@@ -404,12 +417,34 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 					mapView.setRemoveMode(false);
 				}
 			}
+			
+		}else if(v.getTag().equals("move")){
+			//case when user want to move one widget
+			// first step remove, second add the removed widget
+			if(list_usable_files.isEmpty()){
+				Toast.makeText(this,  getText(R.string.map_nothing), Toast.LENGTH_LONG).show();
+			}else{
+				if(mapView.isRemoveMode()==false){
+					//if remove mode is select for the first time
+					//Turn menu text color to green
+					move.setTextColor(Color.GREEN);
+					//say Mapview.java to turn on remove mode
+					mapView.setRemoveMode(true);
+				}else{
+					//Remove mode was active, return to normal mode
+					//Turn menu text color back
+					remove.setTextColor(Color.parseColor("#cfD1D1"));
+					//say Mapview.java to turn off remove mode
+					mapView.setRemoveMode(false);
+				}
+			}
+			
 		} else if(v.getTag().equals("remove_all")){
 			//case when user select remove all from menu
 				if(list_usable_files.isEmpty()){
 					Toast.makeText(this, getText(R.string.map_nothing), Toast.LENGTH_LONG).show();
 				}else{
-					Log.e("Activity_Map","request to clear widgets");
+					Tracer.e("Activity_Map","request to clear widgets");
 					mapView.clear_Widgets();
 					remove.setTextColor(Color.parseColor("#cfD1D1"));
 					mapView.setRemoveMode(false);					
@@ -424,7 +459,7 @@ public class Activity_Map extends Activity implements OnPanelListener,OnClickLis
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Log.d("Activity_Map","onKeyDown keyCode = "+keyCode);
+		Tracer.d("Activity_Map","onKeyDown keyCode = "+keyCode);
 		if(keyCode==82 && !topPanel.isOpen()){
 			bottomPanel.setOpen(true, true);
 			panel_button.setVisibility(View.VISIBLE);

@@ -7,10 +7,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
+import misc.Tracer;
 import android.webkit.WebChromeClient.CustomViewCallback;
 
 public class DmdContentProvider extends ContentProvider {
@@ -45,7 +46,7 @@ public class DmdContentProvider extends ContentProvider {
 	public static final int INSERT_FEATURE_STATE = 260;
 	public static final int CLEAR_FEATURE_STATE = 261;
 	public static final int UPDATE_FEATURE_STATE = 300;
-	public static final int UPDATE_FEATURE_CUSTOM=301;
+	public static final int UPDATE_FEATURE_NAME=301;
 	public static final int UPGRADE_FEATURE_STATE = 400;
 	
 	private static final String DOMODROID_BASE_PATH = "domodroid";
@@ -64,8 +65,6 @@ public class DmdContentProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_INSERT_FEATURE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/INSERT_FEATURE");
 	public static final Uri CONTENT_URI_INSERT_FEATURE_ASSOCIATION = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/INSERT_FEATURE_ASSOCIATION");
 	public static final Uri CONTENT_URI_INSERT_FEATURE_MAP = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/INSERT_FEATURE_MAP");
-	public static final Uri CONTENT_URI_INSERT_FEATURE_CUSTOM = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/INSERT_FEATURE_CUSTOM");
-	public static final Uri CONTENT_URI_CLEAR_FEATURE_CUSTOM = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/CLEAR_FEATURE_CUSTOM");
 	public static final Uri CONTENT_URI_CLEAR_FEATURE_MAP = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/CLEAR_FEATURE_MAP");
 	public static final Uri CONTENT_URI_CLEAR_one_FEATURE_MAP = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/CLEAR_one_FEATURE_MAP");
 	public static final Uri CONTENT_URI_CLEAR_AREA = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/CLEAR_AREA");
@@ -77,7 +76,7 @@ public class DmdContentProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_INSERT_FEATURE_STATE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/INSERT_FEATURE_STATE");
 
 	public static final Uri CONTENT_URI_UPDATE_FEATURE_STATE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPDATE_FEATURE_STATE");
-	public static final Uri CONTENT_URI_UPDATE_FEATURE_CUSTOM = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPDATE_FEATURE_CUSTOM");
+	public static final Uri CONTENT_URI_UPDATE_FEATURE_NAME = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPDATE_FEATURE_NAME");
 	public static final Uri CONTENT_URI_UPGRADE_FEATURE_STATE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPGRADE_FEATURE_STATE");
 
 
@@ -85,7 +84,7 @@ public class DmdContentProvider extends ContentProvider {
 	public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/domodroid";
 
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-	
+
 	static {
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/REQUEST_AREA", REQUEST_AREA);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/REQUEST_ROOM", REQUEST_ROOM);
@@ -101,9 +100,7 @@ public class DmdContentProvider extends ContentProvider {
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/INSERT_FEATURE", INSERT_FEATURE);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/INSERT_FEATURE_ASSOCIATION", INSERT_FEATURE_ASSOCIATION);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/INSERT_FEATURE_MAP", INSERT_FEATURE_MAP);
-		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/INSERT_FEATURE_CUSTOM", INSERT_FEATURE_CUSTOM);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/CLEAR_FEATURE_MAP", CLEAR_FEATURE_MAP);
-		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/CLEAR_FEATURE_CUSTOM", CLEAR_FEATURE_CUSTOM);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/CLEAR_one_FEATURE_MAP", CLEAR_one_FEATURE_MAP);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/CLEAR_AREA", CLEAR_AREA);
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/CLEAR_ROOM", CLEAR_ROOM);
@@ -115,7 +112,7 @@ public class DmdContentProvider extends ContentProvider {
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/INSERT_FEATURE_STATE", INSERT_FEATURE_STATE);
 		
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPDATE_FEATURE_STATE", UPDATE_FEATURE_STATE);
-		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPDATE_FEATURE_CUSTOM", UPDATE_FEATURE_CUSTOM);
+		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPDATE_FEATURE_NAME", UPDATE_FEATURE_NAME);
 		
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPGRADE_FEATURE_STATE", UPGRADE_FEATURE_STATE);
 	}
@@ -140,7 +137,7 @@ public class DmdContentProvider extends ContentProvider {
 		// To erase all table contents
 		int uriType = sURIMatcher.match(uri);
 		if(uriType == UPGRADE_FEATURE_STATE){
-			Log.d("DmdContentProvider","Cleaning tables content");
+			Tracer.d("DmdContentProvider","Cleaning tables content");
 			bdd = mDB.getWritableDatabase();
 			bdd.execSQL("delete from table_area where 1=1");
 			bdd.execSQL("delete from table_room where 1=1");
@@ -181,16 +178,16 @@ public class DmdContentProvider extends ContentProvider {
 			bdd.insert("table_area", null, values);
 			break;
 		case CLEAR_AREA:
-			Log.e("DmdContentProvider","Clear areas table");
+			Tracer.e("DmdContentProvider","Clear areas table");
 			mDB.getWritableDatabase().execSQL("delete from table_area where 1=1");
 			break;
 		
 		case INSERT_ROOM:
 			rowid = mDB.getWritableDatabase().insert("table_room", null, values);
-			Log.d("DmdContentProvider","Inserted room ("+rowid+") "+values.getAsInteger("id")+" "+values.getAsString("name"));
+			Tracer.d("DmdContentProvider","Inserted room ("+rowid+") "+values.getAsInteger("id")+" "+values.getAsString("name"));
 			break;
 		case CLEAR_ROOM:
-			Log.e("DmdContentProvider","Clear rooms table");
+			Tracer.e("DmdContentProvider","Clear rooms table");
 			mDB.getWritableDatabase().execSQL("delete from table_room where 1=1");
 			break;
 		
@@ -198,7 +195,7 @@ public class DmdContentProvider extends ContentProvider {
 			mDB.getWritableDatabase().insert("table_icon", null, values);
 			break;
 		case CLEAR_ICON:
-			Log.e("DmdContentProvider","Clear icons table");
+			Tracer.e("DmdContentProvider","Clear icons table");
 			mDB.getWritableDatabase().execSQL("delete from table_icon where 1=1");
 			break;
 		
@@ -206,7 +203,7 @@ public class DmdContentProvider extends ContentProvider {
 			mDB.getWritableDatabase().insert("table_feature", null, values);
 			break;
 		case CLEAR_FEATURE:
-			Log.e("DmdContentProvider","Clear feature table");
+			Tracer.e("DmdContentProvider","Clear feature table");
 			mDB.getWritableDatabase().execSQL("delete from table_feature where 1=1");
 			break;
 		
@@ -214,18 +211,10 @@ public class DmdContentProvider extends ContentProvider {
 			mDB.getWritableDatabase().insert("table_feature_association", null, values);
 			break;
 		case CLEAR_FEATURE_ASSOCIATION:
-			Log.e("DmdContentProvider","Clear feature_association table");
+			Tracer.e("DmdContentProvider","Clear feature_association table");
 			mDB.getWritableDatabase().execSQL("delete from table_feature_association where 1=1");
 			break;
 		
-		case INSERT_FEATURE_CUSTOM:
-			mDB.getWritableDatabase().insert("table_feature_custom", null, values);
-			break;
-		case CLEAR_FEATURE_CUSTOM:
-			Log.e("DmdContentProvider","Clear feature table custom");
-			mDB.getWritableDatabase().execSQL("delete from table_feature_custom where 1=1");
-			break;	
-			
 		case INSERT_FEATURE_MAP:
 			//case to add an element in table_feature_map table in DB.
 			//Contains device_feature_id (rename as id), posx, posy and map_name
@@ -236,30 +225,44 @@ public class DmdContentProvider extends ContentProvider {
 			//it removes them from the table_feature_map table in DB.
 			String[] map_name = new String[1] ;
 			map_name[0] = values.getAsString("map");
-			Log.e("DmdContentProvider","Clear widgets from map : "+values.getAsString("map"));
+			Tracer.e("DmdContentProvider","Clear widgets from map : "+values.getAsString("map"));
 			mDB.getWritableDatabase().delete("table_feature_map", "map=?", map_name);
 			break;
 		//Add a new select case to remove only one widget on map
 		//careful to avoid problem it must be call with id, posx, posy and map
 		case CLEAR_one_FEATURE_MAP:
-			String[] id_name = new String[1] ;
-			id_name[0] = values.getAsString("id");
-			Log.e("DmdContentProvider","Remove one widgets from map : "+values.getAsString("map")+" posx:"+values.getAsString("posx")+" posy:"+values.getAsString("posy")+" id:"+values.getAsString("id")+" id_name:"+id_name[0]);
-			//need to be adapt to remove by id on only current map
-			//currently it will remove by id in whole table
-			mDB.getWritableDatabase().execSQL("delete from table_feature_map where id="+id_name[0]);
-			//need this to delete widget from only current map, but this does'nt work 
-			//mDB.getWritableDatabase().execSQL("delete from table_feature_map where table_feature_map.id = '"+id_name[0] +
-			//"' AND table_feature_map.map = '"+values.getAsString("map")+"' ");
+			//Tracer.e("DmdContentProvider","Remove one widgets from map : "+values.getAsString("map")+" posx:"+values.getAsString("posx")+" posy:"+values.getAsString("posy")+" id:"+values.getAsString("id")+" id_name:"+id_name[0]);
+			try{
+				//Get a min and max value to be sure not needing a precise click.
+				int posxlow=values.getAsInteger("posx")-20;
+				int posxhigh=values.getAsInteger("posx")+20;
+				mDB.getWritableDatabase().execSQL("DELETE FROM table_feature_map WHERE id="+values.getAsString("id") +" AND map='"+values.getAsString("map")+"' AND posx BETWEEN "+posxlow +" AND "+posxhigh);
+				//Tracer.d("DmdContentProvider", "Doing sql, DELETE FROM table_feature_map WHERE id="+values.getAsString("id") +" AND map='"+values.getAsString("map")+"' AND posx BETWEEN "+posxlow +" AND "+posxhigh);
+				}
+			catch (SQLException e) {
+				Tracer.e("DmdContentProvider", "Error deleting widget: "+e.toString());
+				}
 			break;
 			
 		case INSERT_FEATURE_STATE:
 			mDB.getWritableDatabase().insert("table_feature_state", null, values);
 			break;
 		case CLEAR_FEATURE_STATE:
-			Log.e("DmdContentProvider","Clear feature_state table");
+			Tracer.e("DmdContentProvider","Clear feature_state table");
 			mDB.getWritableDatabase().execSQL("delete from table_feature_state where 1=1");
 			break;
+
+		case UPDATE_FEATURE_NAME:
+			//Rename the description of a device because it's what is first display if exist in a widget
+			try{
+				mDB.getWritableDatabase().execSQL("UPDATE table_feature SET description='" + values.getAsString("newname") + "' WHERE id="+values.getAsString("id"));
+				//Tracer.d("DmdContentProvider", "Doing sql, UPDATE table_feature SET description='" + values.getAsString("newname") + "' WHERE id="+values.getAsString("id"));
+				}
+			catch (SQLException e) {
+				Tracer.e("DmdContentProvider", "Error modifiying the description: "+e.toString());
+				}
+			break;
+		
 		default:
 			throw new IllegalArgumentException("Unknown URI= "+uri);
 		}
@@ -281,13 +284,13 @@ public class DmdContentProvider extends ContentProvider {
 			cursor=mDB.getReadableDatabase().rawQuery(
 					"SELECT * FROM table_area "
 					,null);
-			Log.d("DmdContentProvider","Query on table_area return "+cursor.getCount()+" rows");
+			Tracer.d("DmdContentProvider","Query on table_area return "+cursor.getCount()+" rows");
 			break;
 		case REQUEST_ROOM:
 			queryBuilder.setTables("table_room");
 			cursor = queryBuilder.query(mDB.getReadableDatabase(),projection, selection, selectionArgs, null, null, sortOrder);
 			
-			//Log.d("DmdContentProvider","Query on table_room return "+cursor.getCount()+" rows for area_id :"+selectionArgs[0]);
+			//Tracer.d("DmdContentProvider","Query on table_room return "+cursor.getCount()+" rows for area_id :"+selectionArgs[0]);
 			break;
 		case REQUEST_ICON:
 			queryBuilder.setTables("table_icon");
@@ -331,9 +334,9 @@ public class DmdContentProvider extends ContentProvider {
 		case UPDATE_FEATURE_STATE:
 			String id = selectionArgs[0];
 			String skey = selectionArgs[1];
-			Log.d("DMDContentProvider.update","try to updated feature_state with device_id = "+id+" skey = "+skey+" selection="+selection);
+			Tracer.d("DMDContentProvider.update","try to updated feature_state with device_id = "+id+" skey = "+skey+" selection="+selection);
 			items=mDB.getWritableDatabase().update("table_feature_state", values, selection,selectionArgs);
-			Log.d("DMDContentProvider.update","Updated rows : "+items);
+			Tracer.d("DMDContentProvider.update","Updated rows : "+items);
 			break;
 		case UPDATE_FEATURE_CUSTOM:
 			//String id1 = selectionArgs[0];

@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_FEATURE_CUSTOM = "CREATE TABLE table_feature_custom (id,device_id INTEGER,state_key TEXT,customname TEXT, widget TEXT, visible BOOLEAN);";
 
 	private static final String DATABASE_NAME = Environment.getExternalStorageDirectory()+"/domodroid/.conf/domodroid.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 2;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -67,7 +67,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS table_feature_custom");
         onCreate(db);
 	}
-
+	
+	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		Log.w("DatabaseHelper", "Upgrading database from version " + oldVersion + " to "
+                + newVersion + ", which will destroy all old data");
+		db.execSQL("DROP TABLE IF EXISTS table_area");
+		db.execSQL("DROP TABLE IF EXISTS table_room");
+		db.execSQL("DROP TABLE IF EXISTS table_icon");
+		db.execSQL("DROP TABLE IF EXISTS table_feature");
+		db.execSQL("DROP TABLE IF EXISTS table_feature_association");
+		db.execSQL("DROP TABLE IF EXISTS table_feature_state");
+		db.execSQL("DROP TABLE IF EXISTS table_feature_map");
+		db.execSQL("DROP TABLE IF EXISTS table_feature_custom");
+        onCreate(db);
+	}
 
 	
 }

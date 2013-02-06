@@ -18,19 +18,23 @@
 package widgets;
 
 import rinor.Rest_com;
+import database.DomodroidDB;
 import database.JSONParser;
+
+import org.domogik.domodroid.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 import activities.Gradients_Manager;
 import activities.Graphics_Manager;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.util.Log;
+import misc.Tracer;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,9 +65,11 @@ public class Graphical_Trigger extends FrameLayout implements Runnable, OnClickL
 	//private Boolean activate=false;
 	public FrameLayout container = null;
 	public FrameLayout myself = null;
+	private int dev_id;
+	private DomodroidDB domodb;
 	
 
-	public Graphical_Trigger(Context context, 
+	public Graphical_Trigger(Activity context, 
 			String address, String name, int dev_id,String stat_key, 
 			String url, String usage, String parameters, 
 			String model_id, int widgetSize) throws JSONException {
@@ -72,7 +78,10 @@ public class Graphical_Trigger extends FrameLayout implements Runnable, OnClickL
 		this.address = address;
 		this.url = url;
 		this.myself=this;
-
+		this.dev_id = dev_id;
+		domodb = new DomodroidDB(context);
+		domodb.owner="Graphical_Trigger("+dev_id+")";
+		
 		//get parameters
         JSONObject jparam = new JSONObject(parameters.replaceAll("&quot;", "\""));
         if(jparam != null)
@@ -163,26 +172,25 @@ public class Graphical_Trigger extends FrameLayout implements Runnable, OnClickL
 	}
 	public boolean onLongClick(View arg0) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-		alert.setTitle("Custom Name");
-		alert.setMessage("Set the custom name you want");
+		alert.setTitle(R.string.Rename_title);
+		alert.setMessage(R.string.Rename_message);
 		// Set an EditText view to get user input 
 		final EditText input = new EditText(getContext());
-		alert.setView(input);
-		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-		String result= input.getText().toString(); 
-			Log.e("Graphical_Boolean", "Customname set to: "+result);
-			//domodb.updateFeatureCustomname(dev_id,result);
-			}
-		});
-		
-		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		  public void onClick(DialogInterface dialog, int whichButton) {
-			  Log.e("Graphical_Boolean", "Customname Canceled.");
-		  }
-		});
-		alert.show();
-	    return false;
+			alert.setView(input);
+			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					String result= input.getText().toString(); 
+					Tracer.e("Graphical_Trigger", "Name set to: "+result);
+					domodb.updateFeaturename(dev_id,result);
+				}
+			});
+			alert.setNegativeButton(R.string.reloadNO, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					Tracer.e("Graphical_Trigger", "Customname Canceled.");
+				}
+			});
+			alert.show();
+			return false;
 	}
 }
 
