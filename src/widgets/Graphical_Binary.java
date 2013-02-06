@@ -401,7 +401,7 @@ public class Graphical_Binary extends FrameLayout implements OnSeekBarChangeList
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String result= input.getText().toString(); 
 					Tracer.e("Graphical_Binary", "Name set to: "+result);
-					domodb.updateFeaturename(dev_id,result);
+					domodb.updateFeatureCustomname(dev_id,result);
 				}
 			});
 			alert.setNegativeButton(R.string.reloadNO, new DialogInterface.OnClickListener() {

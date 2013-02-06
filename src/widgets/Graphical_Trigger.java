@@ -181,7 +181,7 @@ public class Graphical_Trigger extends FrameLayout implements Runnable, OnClickL
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String result= input.getText().toString(); 
 					Tracer.e("Graphical_Trigger", "Name set to: "+result);
-					domodb.updateFeaturename(dev_id,result);
+					domodb.updateFeatureCustomname(dev_id,result);
 				}
 			});
 			alert.setNegativeButton(R.string.reloadNO, new DialogInterface.OnClickListener() {

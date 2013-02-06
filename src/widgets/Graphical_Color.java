@@ -734,7 +734,7 @@ public class Graphical_Color extends FrameLayout implements OnSeekBarChangeListe
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String result= input.getText().toString(); 
 					Tracer.e("Graphical_Color", "Name set to: "+result);
-					domodb.updateFeaturename(dev_id,result);
+					domodb.updateFeatureCustomname(dev_id,result);
 				}
 			});
 			alert.setNegativeButton(R.string.reloadNO, new DialogInterface.OnClickListener() {

@@ -20,7 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_FEATURE_ASSOCIATION = "CREATE TABLE table_feature_association (place_id INTEGER, place_type TEXT, device_feature_id INTEGER, id INTEGER, device_feature TEXT );";
 	private static final String CREATE_TABLE_FEATURE_STATE = "CREATE TABLE table_feature_state (device_id INTEGER, key TEXT, value TEXT);";
 	private static final String CREATE_TABLE_FEATURE_MAP = "CREATE TABLE table_feature_map (id, posx INTEGER, posy INTEGER, map TEXT);";
-	private static final String CREATE_TABLE_FEATURE_CUSTOM = "CREATE TABLE table_feature_custom (id,device_id INTEGER,state_key TEXT,customname TEXT, widget TEXT, visible BOOLEAN);";
+	private static final String CREATE_TABLE_FEATURE_CUSTOM = "CREATE TABLE table_feature_custom (id,device_id INTEGER,state_key TEXT,custom_name TEXT, custom_description TEXT,custom_widget TEXT, custom_usage TEXT, visible BOOLEAN);";
 
 	private static final String DATABASE_NAME = Environment.getExternalStorageDirectory()+"/domodroid/.conf/domodroid.db";
 	private static final int DATABASE_VERSION = 2;
@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 	@Override
+	//Create all table
 	public void onCreate(SQLiteDatabase db) {
 		this.db = db;
 		db.execSQL(CREATE_TABLE_AREA);
@@ -54,6 +55,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 	@Override
+	//Delete table if db is upgrade
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.w("DatabaseHelper", "Upgrading database from version " + oldVersion + " to "
                 + newVersion + ", which will destroy all old data");
@@ -68,8 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
 	}
 	
+	//Delete table if db is downgrade
 	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.w("DatabaseHelper", "Upgrading database from version " + oldVersion + " to "
+		Log.w("DatabaseHelper", "Downgrading database from version " + oldVersion + " to "
                 + newVersion + ", which will destroy all old data");
 		db.execSQL("DROP TABLE IF EXISTS table_area");
 		db.execSQL("DROP TABLE IF EXISTS table_room");

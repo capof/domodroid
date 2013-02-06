@@ -261,7 +261,7 @@ public class Graphical_Boolean extends FrameLayout implements OnLongClickListene
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String result= input.getText().toString(); 
 					Tracer.e("Graphical_Boolean", "Name set to: "+result);
-					domodb.updateFeaturename(dev_id,result);
+					domodb.updateFeatureCustomname(dev_id,result);
 				}
 			});
 			alert.setNegativeButton(R.string.reloadNO, new DialogInterface.OnClickListener() {

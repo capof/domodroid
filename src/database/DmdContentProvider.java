@@ -46,8 +46,9 @@ public class DmdContentProvider extends ContentProvider {
 	public static final int INSERT_FEATURE_STATE = 260;
 	public static final int CLEAR_FEATURE_STATE = 261;
 	public static final int UPDATE_FEATURE_STATE = 300;
-	public static final int UPDATE_FEATURE_NAME=301;
 	public static final int UPGRADE_FEATURE_STATE = 400;
+	
+	public static final int UPDATE_FEATURE_CUSTOM_NAME=501;
 	
 	private static final String DOMODROID_BASE_PATH = "domodroid";
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH);
@@ -76,9 +77,10 @@ public class DmdContentProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_INSERT_FEATURE_STATE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/INSERT_FEATURE_STATE");
 
 	public static final Uri CONTENT_URI_UPDATE_FEATURE_STATE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPDATE_FEATURE_STATE");
-	public static final Uri CONTENT_URI_UPDATE_FEATURE_NAME = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPDATE_FEATURE_NAME");
 	public static final Uri CONTENT_URI_UPGRADE_FEATURE_STATE = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPGRADE_FEATURE_STATE");
-
+	
+	public static final Uri CONTENT_URI_UPDATE_FEATURE_CUSTOM_NAME = Uri.parse("content://" + AUTHORITY+ "/" + DOMODROID_BASE_PATH + "/UPDATE_FEATURE_CUSTOM_NAME");
+	
 
 	public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/domodroid";
 	public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/domodroid";
@@ -112,7 +114,7 @@ public class DmdContentProvider extends ContentProvider {
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/INSERT_FEATURE_STATE", INSERT_FEATURE_STATE);
 		
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPDATE_FEATURE_STATE", UPDATE_FEATURE_STATE);
-		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPDATE_FEATURE_NAME", UPDATE_FEATURE_NAME);
+		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPDATE_FEATURE_NAME", UPDATE_FEATURE_CUSTOM_NAME);
 		
 		sURIMatcher.addURI(AUTHORITY, DOMODROID_BASE_PATH + "/UPGRADE_FEATURE_STATE", UPGRADE_FEATURE_STATE);
 	}
@@ -252,10 +254,10 @@ public class DmdContentProvider extends ContentProvider {
 			mDB.getWritableDatabase().execSQL("delete from table_feature_state where 1=1");
 			break;
 
-		case UPDATE_FEATURE_NAME:
+		case UPDATE_FEATURE_CUSTOM_NAME:
 			//Rename the description of a device because it's what is first display if exist in a widget
 			try{
-				mDB.getWritableDatabase().execSQL("UPDATE table_feature SET description='" + values.getAsString("newname") + "' WHERE id="+values.getAsString("id"));
+				mDB.getWritableDatabase().execSQL("UPDATE table_feature_custom SET custom_description='" + values.getAsString("newname") + "' WHERE id="+values.getAsString("id"));
 				//Tracer.d("DmdContentProvider", "Doing sql, UPDATE table_feature SET description='" + values.getAsString("newname") + "' WHERE id="+values.getAsString("id"));
 				}
 			catch (SQLException e) {
@@ -337,14 +339,6 @@ public class DmdContentProvider extends ContentProvider {
 			Tracer.d("DMDContentProvider.update","try to updated feature_state with device_id = "+id+" skey = "+skey+" selection="+selection);
 			items=mDB.getWritableDatabase().update("table_feature_state", values, selection,selectionArgs);
 			Tracer.d("DMDContentProvider.update","Updated rows : "+items);
-			break;
-		case UPDATE_FEATURE_CUSTOM:
-			//String id1 = selectionArgs[0];
-			//String skey1 = selectionArgs[1];
-			//values contains for example "id= 3 customname=blablabla"
-			//Log.d("DMDContentProvider.update","try to updated customname with device_id = "+id1+" skey = "+skey1+" selection="+selection);
-			//items=mDB.getWritableDatabase().update("table_feature_custom", values, selection,selectionArgs);
-			//Log.e("DmdContentProvider","update Custom name");
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);

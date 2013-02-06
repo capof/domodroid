@@ -109,12 +109,12 @@ public class DomodroidDB {
 
 
 	//Send custom name to DmdContentProvder so that it could be write in DB
-	public void updateFeaturename(int id,String name){
+	public void updateFeatureCustomname(int id,String name){
 		ContentValues values = new ContentValues();
 		values.put("id", id);
 		values.put("newname", name);
 		Tracer.e("DomodrdoidDB", "Name set to: "+name+" for device: "+id);
-		context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_UPDATE_FEATURE_NAME, values);
+		context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_UPDATE_FEATURE_CUSTOM_NAME, values);
 	}
 	
 
@@ -179,7 +179,6 @@ public class DomodroidDB {
 		}
 	}
 
-
 	public void insertFeatureMap(int id, int posx, int posy, String map){
 		//send value to database to add a widget on map
 		ContentValues values = new ContentValues();
@@ -188,27 +187,6 @@ public class DomodroidDB {
 		values.put("posy", posy);
 		values.put("map", map);
 		context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_INSERT_FEATURE_MAP, values);
-	}
-	
-	public void insertFeaturecustom(JSONObject json) throws JSONException{
-		ContentValues values = new ContentValues();
-		JSONArray itemArray = json.getJSONArray("feature_association");
-		//context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_CLEAR_FEATURE_ASSOCIATION, null);
-		String skey = null;
-		for (int i =0; i < itemArray.length(); i++){
-			//if(exists) {
-			try {
-				skey = itemArray.getJSONObject(i).getString("skey");
-			} catch (Exception e) {
-				Log.e(mytag+"("+owner+")", "Database feature No skey for id : "+itemArray.getJSONObject(i).getInt("device_id"));
-				skey = "_";
-			}
-			values.put("device_id", itemArray.getJSONObject(i).getJSONObject("device").getInt("id"));
-			values.put("key", skey);
-			values.put("device_feature","");
-			values.put("device_feature","");
-			context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_INSERT_FEATURE_CUSTOM, values);
-		}
 	}
 	
 	////////////////// REMOVE
