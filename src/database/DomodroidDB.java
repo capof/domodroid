@@ -234,6 +234,8 @@ public class DomodroidDB {
 
 */
 	
+*/
+	
 	public void insertFeatureMap(int id, int posx, int posy, String map){
 		//send value to database to add a widget on map
 		ContentValues values = new ContentValues();
@@ -243,6 +245,10 @@ public class DomodroidDB {
 		values.put("map", map);
 		context.getContentResolver().insert(DmdContentProvider.CONTENT_URI_INSERT_FEATURE_MAP, values);
 	}
+	
+	////////////////// REMOVE
+
+	
 	//add a public void to remove one widget
 	public void removeFeatureMap(int id, int posx, int posy, String map){
 		ContentValues values = new ContentValues();
