@@ -18,6 +18,7 @@ import widgets.Graphical_Boolean;
 import widgets.Graphical_Cam;
 import widgets.Graphical_Color;
 import widgets.Graphical_Info;
+import widgets.Graphical_Info_with_achartengine;
 import widgets.Graphical_List;
 import widgets.Graphical_Range;
 import widgets.Graphical_Room;
@@ -40,6 +41,7 @@ public class Widgets_Manager {
 	private Graphical_Boolean bool;
 	private Graphical_Range variator;
 	private Graphical_Info info;
+	private Graphical_Info_with_achartengine info_new;
 	private Graphical_List list;
 	private Graphical_Trigger trigger;
 	private Graphical_Cam cam;
@@ -149,7 +151,7 @@ public class Widgets_Manager {
 								widgetSize, mytype);
 						onoff_New.container=tmpPan;
 						tmpPan.addView(onoff_New);
-						Tracer.i("Widgets_Manager","   ==> Graphical_Binary");
+						Tracer.i("Widgets_Manager","   ==> Graphical_Binary_new");
 					}
 				}
 			} else if (feature.getValue_type().equals("boolean")) {
@@ -207,7 +209,8 @@ public class Widgets_Manager {
 				Tracer.i("Widgets_Manager","   ==> Graphical_Color");
 			} else if (feature.getValue_type().equals("number")) {
 				Tracer.e("Widgets_Manager","add Graphical_Info for "+feature.getName()+" ("+feature.getDevId()+") key="+feature.getState_key());
-				info = new Graphical_Info(Tracer, context,feature.getId(),feature.getDevId(), label,
+				if (params.getBoolean("WIDGET_CHOICE",false)==false) {
+					info = new Graphical_Info(Tracer, context,feature.getId(),feature.getDevId(), label,
 						feature.getState_key(),
 						params.getString("URL","1.1.1.1"),
 						feature.getDevice_usage_id(),
@@ -218,6 +221,19 @@ public class Widgets_Manager {
 				info.container=tmpPan;
 				tmpPan.addView(info);
 				Tracer.i("Widgets_Manager","   ==> Graphical_Info + Graphic");
+				}else{
+					info_new = new Graphical_Info_with_achartengine(Tracer, context,feature.getId(),feature.getDevId(), label,
+							feature.getState_key(),
+							params.getString("URL","1.1.1.1"),
+							feature.getDevice_usage_id(),
+							params.getInt("GRAPH",3),
+							params.getInt("UPDATE_TIMER",300),
+							widgetSize, mytype, feature.getParameters());
+					info_new.setLayoutParams(layout_param);
+					info_new.container=tmpPan;
+					tmpPan.addView(info_new);
+					Tracer.i("Widgets_Manager","   ==> Graphical_Info_with_achartengine + Graphic");
+				}
 			} else if (feature.getValue_type().equals("list")) {
 				Tracer.e("Widgets_Manager","add Graphical_List for "+feature.getName()+" ("+feature.getDevId()+") key="+feature.getState_key());
 				list = new Graphical_List(Tracer, context,feature.getId(),feature.getDevId(), label,
