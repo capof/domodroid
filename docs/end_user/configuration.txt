@@ -2,38 +2,17 @@
 Configuration
 =============
 
-In sync menu, set the IP and PORT of the Rinor server, for example http://192.168.0.1:40405/.
+In the menu view you have choice of:
 
-Set Auto-Update time with the sliding bar to adjust the frequency you want Domodroid to get data from Rinor.
+*Sync
 
-Graphic period has been removed, and you can now switch graph period directly in the graph view.
+Just run a mechanism to sync your domogik configuration with domodroid.
 
-* Dev, add the device Id after his name to help debugging.
-* Forbid 2 columns will show widget on only one columns if your screen have more than 700px width (for example in landscape mode).
-  
+Be careful, it will destroy all your cutom_name and delete map widget link. It means you have to re-create you map design with your widget.
 
-.. image:: new_menu.png
+Exit
 
-Map option:
-* Allow drag in map view
-* Allow zoom in map view
-* Hide text, will hide the text of all widget on map
-* Lock menu will lock access to the top menu in map mode to avoid someone add/remove widget
-* Start options allow user to start in map mode directly instead of Room/Usage when launching Domodroid
-
-Max map size in px (be careful it could make memory error).
-
-.. image:: Map_conf_menu.png
-
-Debug option:
-* Allow Debug message
-* Allow Error message
-* Allow Info message
-* Allow Verbose message
-* Allow Warning message
-* In Catlog
-* In Screen view
-* In text file
-* You have to select the dirname and filename where you want it to be save.
-
-.. image:: Debug_Conf_menu.png
+* :doc:`Configuration Widget </end_user/Config_widget>`
+* :doc:`Configuration Server </end_user/Config_server>`
+* :doc:`Configuration Map </end_user/Config_map>`
+* :doc:`Configuration Debug </end_user/Config_debug>`
